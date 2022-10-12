@@ -1,5 +1,3 @@
-import datetime
-
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
@@ -13,10 +11,11 @@ from recipes.models import User
 
 
 class CustomUserSerializer(UserSerializer):
-
+    """Класс регистрации и работы с пользователями"""
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'password')
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -37,7 +36,7 @@ class CustomUserSerializer(UserSerializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-
+    """Класс получения токена (авторизация)"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         del self.fields['username']
@@ -61,22 +60,3 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             return self.get_token(user)
         return 'Неверный пароль'
 
-
-class CustomTokenObtainPairSerializer2(TokenObtainPairSerializer):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        print(self.context['request'].user)
-        del self.fields['username']
-        del self.fields['password']
-
-    @classmethod
-    def get_token(cls, user):
-        token = RefreshToken.for_user(user).set_exp(lifetime=datetime.timedelta(minutes=1))
-        return {'token': str(token.access_token)}
-
-    def validate(self, attrs):
-        # user = get_object_or_404(User, email=attrs.email)
-        # return self.get_token(attrs)
-        print('refresh')
-        return 1
