@@ -1,11 +1,8 @@
-from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from recipes.models import User
 
@@ -35,28 +32,14 @@ class CustomUserSerializer(UserSerializer):
         return value
 
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    """Класс получения токена (авторизация)"""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        del self.fields['username']
-        self.fields['email'] = serializers.EmailField()
+class ChangePasswordSerializer(UserSerializer):
+    """Класс изменения пароля у пользователя"""
+    current_password = serializers.CharField(source='password', required=True)
+    new_password = serializers.CharField(required=True)
 
-    @classmethod
-    def get_token(cls, user):
-        token = RefreshToken.for_user(user)
-        token['password'] = user.password
-        token['email'] = user.email
-        return {'token': str(token.access_token)}
+    class Meta:
+        model = User
+        fields = ('new_password', 'current_password')
 
-    def validate(self, attrs):
-        email = attrs.get('email')
-        password = attrs.get('password')
-        user = get_object_or_404(
-            User,
-            email=email,
-        )
-        if user.check_password(password):
-            return self.get_token(user)
-        return 'Неверный пароль'
-
+    def validate_new_password(self, value):
+        return make_password(value)

@@ -1,5 +1,4 @@
 import os
-from datetime import timedelta
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -98,16 +97,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
 
-
+# Новая модель юзера
 AUTH_USER_MODEL = 'recipes.User'
 
+# Переопределение поля для получения токена с username на email
 DJOSER = {
     'LOGIN_FIELD': 'email'
 }
