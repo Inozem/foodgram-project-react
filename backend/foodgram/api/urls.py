@@ -11,5 +11,4 @@ app_name = 'api'
 
 urlpatterns = [
     path('', include('users.urls')),
-    # path('', include('djoser.urls')),
 ]

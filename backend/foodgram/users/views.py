@@ -4,8 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated, AllowAny)
 from rest_framework.response import Response
 
+from users.models import Subscription, User
 from users.serializers import (CustomUserSerializer, ChangePasswordSerializer,)
-from recipes.models import User
 
 
 class CreateListRetrieveViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
@@ -39,3 +39,19 @@ class UserViewSet(CreateListRetrieveViewSet):
                 user.save()
                 return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post'], detail=False,
+            url_path='(?P<pk>[^/.]+)/subscribe',
+            permission_classes=[IsAuthenticated])
+    def subscribe(self, request, pk):
+        author = get_object_or_404(User, pk=pk)
+        user = request.user
+        subscription = Subscription.objects.filter(author=author, user=user)
+        is_subscribed = bool(subscription)
+        if author != user and not is_subscribed:
+            subscription = Subscription(author=author, user=user)
+            subscription.save()
+            return Response(status=status.HTTP_201_CREATED)
+        response = {'errors': ('Вы уже подписаны на этого автора или '
+                               'пытаетель подписаться на самого себя.')}
+        return Response(response, status=status.HTTP_400_BAD_REQUEST)

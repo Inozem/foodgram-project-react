@@ -107,7 +107,7 @@ REST_FRAMEWORK = {
 }
 
 # Новая модель юзера
-AUTH_USER_MODEL = 'recipes.User'
+AUTH_USER_MODEL = 'users.User'
 
 # Переопределение поля для получения токена с username на email
 DJOSER = {
