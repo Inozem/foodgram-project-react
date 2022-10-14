@@ -7,7 +7,7 @@ from users.models import User
 
 
 class CustomUserSerializer(UserSerializer):
-    """Класс регистрации и работы с пользователями"""
+    """Класс регистрации пользователей"""
     class Meta:
         model = User
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
@@ -29,6 +29,19 @@ class CustomUserSerializer(UserSerializer):
         if value.lower() == 'me':
             raise ValidationError('Нельзя создать пользователя me')
         return value
+
+
+class UserActionGetSerializer(UserSerializer):
+    """Класс получения данных пользователей"""
+    is_subscriebed = serializers.SerializerMethodField(source='follower')
+
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscriebed')
+
+    def get_is_subscriebed(self, value):
+        return self.context['request'].user == value
 
 
 class ChangePasswordSerializer(UserSerializer):
