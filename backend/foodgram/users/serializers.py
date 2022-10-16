@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
-from users.models import User
+from users.models import Subscription, User
 
 
 class CustomUserSerializer(UserSerializer):
@@ -33,18 +33,19 @@ class CustomUserSerializer(UserSerializer):
 
 class UserActionGetSerializer(UserSerializer):
     """Класс получения данных пользователей"""
-    is_subscriebed = serializers.SerializerMethodField(source='follower')
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
-                  'is_subscriebed')
+                  'is_subscribed')
 
-    def get_is_subscriebed(self, value):
-        try:
-            return self.context['request'].user == value
-        except KeyError:
-            return False
+    def get_is_subscribed(self, value):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            subscription = Subscription.objects.filter(author=value, user=user)
+            return subscription.exists()
+        return False
 
 
 class ChangePasswordSerializer(UserSerializer):

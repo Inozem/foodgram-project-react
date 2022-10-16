@@ -8,7 +8,6 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        null=True,
         related_name='creator',
         verbose_name='Автор'
     )

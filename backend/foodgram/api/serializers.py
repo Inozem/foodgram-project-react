@@ -7,7 +7,7 @@ from users.serializers import UserActionGetSerializer
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    """Класс регистрации пользователей"""
+    """Класс рецептов"""
     author = serializers.SerializerMethodField()
 
     class Meta:
@@ -15,6 +15,19 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'author', 'name', 'text',
                   'cooking_time')
 
+    def create(self, validated_data):
+        recipe = Recipe.objects.create(
+            author=self.context['request'].user,
+            name=validated_data['name'],
+            text=validated_data['text'],
+            cooking_time=validated_data['cooking_time'],
+        )
+        recipe.save()
+        return recipe
+
     def get_author(self, value):
-        serializer = UserActionGetSerializer(self.context['request'].user)
+        request = self.context['request']
+        author = value.author
+        context = {'request': request}
+        serializer = UserActionGetSerializer(author, context=context)
         return serializer.data

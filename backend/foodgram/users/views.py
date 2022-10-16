@@ -21,7 +21,6 @@ class CreateListRetrieveViewSet(
 class UserViewSet(CreateListRetrieveViewSet):
     """Класс регистрации и работы с пользователями и подписками на авторов"""
     queryset = User.objects.all()
-    serializer_class = CustomUserSerializer
     permission_classes = (AllowAny,)
 
     def get_serializer_class(self):
@@ -31,7 +30,8 @@ class UserViewSet(CreateListRetrieveViewSet):
 
     @action(detail=False, url_path='me', permission_classes=[IsAuthenticated])
     def me(self, request):
-        serializer = self.get_serializer(request.user)
+        context = {'request': self.request}
+        serializer = UserActionGetSerializer(request.user, context=context)
         return Response(serializer.data)
 
     @action(methods=['post'], detail=False, url_path='set_password',
@@ -52,8 +52,10 @@ class UserViewSet(CreateListRetrieveViewSet):
     @action(detail=False, url_path='subscribtions',
             permission_classes=[IsAuthenticated])
     def subscribtions(self, request):
-        authors = User.objects.filter(follower__user=request.user)
-        serializer = self.get_serializer(authors, many=True)
+        authors = User.objects.filter(author__user=request.user)
+        context = {'request': self.request}
+        serializer = UserActionGetSerializer(authors, context=context,
+                                             many=True)
         return Response(serializer.data)
 
     @action(methods=['post', 'delete'], detail=False,
