@@ -5,10 +5,11 @@ from api import views
 
 app_name = 'api'
 
-# router_v1 = SimpleRouter()
-# router_v1.register('auth/signup', views.UserViewSet, basename='signup')
+router_v1 = SimpleRouter()
+router_v1.register('recipes', views.RecipeViewSet, basename='recipes')
 
 
 urlpatterns = [
-    path('', include('users.urls')),
+    path('', include(router_v1.urls)),
+    # path('', include('users.urls')),
 ]

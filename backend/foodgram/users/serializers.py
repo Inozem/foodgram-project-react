@@ -41,7 +41,10 @@ class UserActionGetSerializer(UserSerializer):
                   'is_subscriebed')
 
     def get_is_subscriebed(self, value):
-        return self.context['request'].user == value
+        try:
+            return self.context['request'].user == value
+        except KeyError:
+            return False
 
 
 class ChangePasswordSerializer(UserSerializer):

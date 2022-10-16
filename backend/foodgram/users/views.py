@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import (IsAuthenticated, AllowAny)
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from users.models import Subscription, User
@@ -9,17 +9,16 @@ from users.serializers import (CustomUserSerializer, UserActionGetSerializer,
                                ChangePasswordSerializer)
 
 
-class CreateListRetrieveDestroyViewSet(
+class CreateListRetrieveViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    mixins.DestroyModelMixin,
     viewsets.GenericViewSet
 ):
     pass
 
 
-class UserViewSet(CreateListRetrieveDestroyViewSet):
+class UserViewSet(CreateListRetrieveViewSet):
     """Класс регистрации и работы с пользователями и подписками на авторов"""
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
