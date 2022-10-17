@@ -31,3 +31,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         context = {'request': request}
         serializer = UserActionGetSerializer(author, context=context)
         return serializer.data
+
+    def validate_cooking_time(self, value):
+        if value >= 1:
+            return value
+        raise serializers.ValidationError('Время готовки должно быть больше 0')

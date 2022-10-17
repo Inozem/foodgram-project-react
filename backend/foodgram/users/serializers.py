@@ -45,7 +45,7 @@ class UserActionGetSerializer(UserSerializer):
         if user.is_authenticated:
             subscription = Subscription.objects.filter(author=value, user=user)
             return subscription.exists()
-        return False
+        return False  # Если пользователь аноним
 
 
 class ChangePasswordSerializer(UserSerializer):
