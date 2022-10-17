@@ -1,6 +1,18 @@
+from colorfield.fields import ColorField
 from django.db import models
 
 from users.models import User
+
+
+class Tag(models.Model):
+    """Класс тэгов"""
+    name = models.CharField(
+        max_length=254,
+        verbose_name='Название',
+        unique=True
+    )
+    color = ColorField(default='#FF0000', unique=True)
+    slug = models.CharField(max_length=150, verbose_name='Ссылка', unique=True)
 
 
 class Recipe(models.Model):

@@ -1,10 +1,18 @@
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
 from api.serializers import RecipeSerializer
 from recipes.models import Recipe
+
+
+class RecipeFilterSet(FilterSet):
+    author = NumberFilter(field_name='author__id')
+
+    class Meta:
+        model = Recipe
+        fields = ['id', 'author']
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -14,7 +22,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('id', 'author__id',)
+    filter_class = RecipeFilterSet
+    filterset_fields = ('id', 'author')
 
     def is_author(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
