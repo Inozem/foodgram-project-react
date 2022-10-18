@@ -4,8 +4,16 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
 from api.filters import RecipeFilterSet
-from api.serializers import RecipeSerializer, TagSerializer
-from recipes.models import Recipe, Tag
+from api.serializers import (IngredientSerializer, RecipeSerializer,
+                             TagSerializer)
+from recipes.models import Ingredient, Recipe, Tag
+
+
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """Класс работы с ингредиентами."""
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    pagination_class = None
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

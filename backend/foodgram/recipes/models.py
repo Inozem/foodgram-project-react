@@ -4,8 +4,46 @@ from django.db import models
 from users.models import User
 
 
+class Ingredient(models.Model):
+    """Класс ингредиента."""
+    name = models.CharField(
+        max_length=254,
+        verbose_name='Название',
+    )
+    measurement_unit = models.CharField(
+        max_length=150,
+        verbose_name='Единица измерения',
+    )
+
+    def __str__(self):
+        return f'{self.name} ({self.measurement_unit})'
+
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
+
+class Ingredients_amount(models.Model):
+    """Класс количества ингредиентов."""
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name='ingredient',
+        verbose_name='Ингредиент'
+    )
+    amount = models.FloatField(verbose_name='Количество')
+
+    def __str__(self):
+        return (f'{self.ingredient.name} - '
+                f'{self.amount} {self.ingredient.measurement_unit}')
+
+    class Meta:
+        verbose_name = 'Кол-во ингредиентов'
+        verbose_name_plural = 'Кол-во ингредиентов'
+
+
 class Tag(models.Model):
-    """Класс тэгов"""
+    """Класс тэгов."""
     name = models.CharField(
         max_length=254,
         verbose_name='Название',
@@ -15,9 +53,6 @@ class Tag(models.Model):
     slug = models.SlugField(max_length=150, verbose_name='Ссылка', unique=True)
 
     def __str__(self):
-        return self.name
-
-    def __repr__(self):
         return self.name
 
     class Meta:
@@ -36,7 +71,11 @@ class Recipe(models.Model):
     name = models.CharField(max_length=200, verbose_name='Название')
     # image = models.TextField(verbose_name='Изображение')
     text = models.TextField(verbose_name='Текст')
-    # ingredients = models.ForeignKey(Ingredients_in_recipe, on_delete=models.CASCADE, related_name='ingredients', verbose_name='Ингредиенты')
+    ingredients = models.ManyToManyField(
+        Ingredients_amount,
+        related_name='ingredients_amount',
+        verbose_name='Ингредиенты'
+    )
     tags = models.ManyToManyField(
         Tag,
         related_name='tags',
