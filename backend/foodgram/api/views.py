@@ -1,21 +1,21 @@
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
-from api.serializers import RecipeSerializer
-from recipes.models import Recipe
+from api.filters import RecipeFilterSet
+from api.serializers import RecipeSerializer, TagSerializer
+from recipes.models import Recipe, Tag
 
 
-class RecipeFilterSet(FilterSet):
-    author = NumberFilter(field_name='author__id')
-
-    class Meta:
-        model = Recipe
-        fields = ['id', 'author']
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """Класс работы с тэгами."""
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """Класс работы с рецептами."""
     RESPONSE_DETAIL = {
         'detail': 'У вас недостаточно прав для выполнения данного действия.'
     }

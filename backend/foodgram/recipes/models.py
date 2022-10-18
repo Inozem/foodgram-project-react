@@ -12,7 +12,17 @@ class Tag(models.Model):
         unique=True
     )
     color = ColorField(default='#FF0000', unique=True)
-    slug = models.CharField(max_length=150, verbose_name='Ссылка', unique=True)
+    slug = models.SlugField(max_length=150, verbose_name='Ссылка', unique=True)
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Тэг'
+        verbose_name_plural = 'Тэги'
 
 
 class Recipe(models.Model):
@@ -27,12 +37,19 @@ class Recipe(models.Model):
     # image = models.TextField(verbose_name='Изображение')
     text = models.TextField(verbose_name='Текст')
     # ingredients = models.ForeignKey(Ingredients_in_recipe, on_delete=models.CASCADE, related_name='ingredients', verbose_name='Ингредиенты')
-    # tags = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='tags', verbose_name='Тэги')
+    tags = models.ManyToManyField(
+        Tag,
+        related_name='tags',
+        verbose_name='Тэги',
+    )
     cooking_time = models.IntegerField(verbose_name='Время приготовления')
     created = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True
     )
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         ordering = ('-created',)

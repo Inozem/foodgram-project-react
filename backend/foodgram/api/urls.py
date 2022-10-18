@@ -7,6 +7,7 @@ app_name = 'api'
 
 router_v1 = SimpleRouter()
 router_v1.register('recipes', views.RecipeViewSet, basename='recipes')
+router_v1.register('tags', views.TagViewSet, basename='tags')
 
 
 urlpatterns = [

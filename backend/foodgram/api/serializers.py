@@ -2,17 +2,24 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from recipes.models import Recipe
+from recipes.models import Recipe, Tag
 from users.serializers import UserActionGetSerializer
 
 
+class TagSerializer(serializers.ModelSerializer):
+    """Класс тэгов."""
+    class Meta:
+        model = Tag
+        fields = ('id', 'name', 'color', 'slug')
+
+
 class RecipeSerializer(serializers.ModelSerializer):
-    """Класс рецептов"""
+    """Класс рецептов."""
     author = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
-        fields = ('id', 'author', 'name', 'text',
+        fields = ('id', 'tags', 'author', 'name', 'text',
                   'cooking_time')
 
     def create(self, validated_data):
