@@ -30,16 +30,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'name', 'text',
                   'cooking_time')
 
-    def create(self, validated_data):
-        recipe = Recipe.objects.create(
-            author=self.context['request'].user,
-            name=validated_data['name'],
-            text=validated_data['text'],
-            cooking_time=validated_data['cooking_time'],
-        )
-        recipe.save()
-        return recipe
-
     def get_author(self, value):
         request = self.context['request']
         author = value.author
@@ -51,3 +41,16 @@ class RecipeSerializer(serializers.ModelSerializer):
         if value >= 1:
             return value
         raise serializers.ValidationError('Время готовки должно быть больше 0')
+
+
+class RecipeCreateSerializer(serializers.ModelSerializer):
+    """Класс создания рецептов."""
+    class Meta:
+        model = Recipe
+        fields = ('id', 'tags', 'author', 'name', 'text',
+                  'cooking_time')
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return RecipeSerializer(instance, context=context).data

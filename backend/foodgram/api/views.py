@@ -4,7 +4,7 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
 from api.filters import RecipeFilterSet
-from api.serializers import (IngredientSerializer, RecipeSerializer,
+from api.serializers import (IngredientSerializer, RecipeCreateSerializer, RecipeSerializer,
                              TagSerializer)
 from recipes.models import Ingredient, Recipe, Tag
 
@@ -29,9 +29,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
     }
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filter_class = RecipeFilterSet
-    filterset_fields = ('id', 'author')
+    # filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilterSet
+    # filterset_fields = ('author', 'tags')
+
+    def create(self, request):
+        request.data['author'] = request.user.id
+        context = {'request': self.request}
+        serializer = RecipeCreateSerializer(data=request.data, context=context)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def is_author(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
