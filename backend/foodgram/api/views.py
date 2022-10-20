@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
 from api.filters import RecipeFilterSet
-from api.serializers import (IngredientSerializer, RecipeCreateSerializer, RecipeSerializer,
-                             TagSerializer)
-from recipes.models import Ingredient, Recipe, Tag
+from api.serializers import (IngredientsAmountCreateRecipeSerializer,
+                             IngredientSerializer, RecipeCreateSerializer,
+                             RecipeSerializer, TagSerializer)
+from recipes.models import Ingredient, Ingredients_amount, Recipe, Tag
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -29,13 +29,50 @@ class RecipeViewSet(viewsets.ModelViewSet):
     }
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    # filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilterSet
-    # filterset_fields = ('author', 'tags')
+
+    def creating_ingredients(self, request):
+        ingredients = []
+        request_ingredients = request.data['ingredients']
+        for ingredient in request_ingredients:
+            ingredient_obj = get_object_or_404(Ingredient, id=ingredient['id'])
+            try:
+                ingredients_amount = Ingredients_amount.objects.get(
+                    ingredient=ingredient_obj,
+                    amount=ingredient['amount']
+                )
+                ingredients.append(ingredients_amount.id)
+            except:
+                data = {
+                    'ingredient': ingredient_obj.id,
+                    'amount': ingredient['amount']
+                }
+                context = data
+                serializer = IngredientsAmountCreateRecipeSerializer(
+                    data=data,
+                    context=context
+                )
+                if serializer.is_valid():
+                    ingredients_amount = Ingredients_amount.objects.create(
+                        ingredient=ingredient_obj,
+                        amount=ingredient['amount']
+                    )
+                    ingredients_amount.save
+                    ingredients.append(ingredients_amount.id)
+                else:
+                    status400 = status.HTTP_400_BAD_REQUEST
+                    return 'Error', Response(serializer.errors,
+                                             status=status400)
+        request.data['ingredients'] = ingredients
+        return None, request
 
     def create(self, request):
         request.data['author'] = request.user.id
+        error, request = self.creating_ingredients(request)
+        if error:
+            return request
         context = {'request': self.request}
+        print(request.data, context)
         serializer = RecipeCreateSerializer(data=request.data, context=context)
         if serializer.is_valid():
             serializer.save()
