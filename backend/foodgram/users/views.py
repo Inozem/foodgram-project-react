@@ -6,7 +6,8 @@ from rest_framework.response import Response
 
 from users.models import Subscription, User
 from users.serializers import (CustomUserSerializer, UserActionGetSerializer,
-                               ChangePasswordSerializer)
+                               ChangePasswordSerializer,
+                               SubscriptionSerializer)
 
 
 class CreateListRetrieveViewSet(
@@ -54,8 +55,8 @@ class UserViewSet(CreateListRetrieveViewSet):
     def subscribtions(self, request):
         authors = User.objects.filter(author__user=request.user)
         context = {'request': self.request}
-        serializer = UserActionGetSerializer(authors, context=context,
-                                             many=True)
+        serializer = SubscriptionSerializer(authors, context=context,
+                                            many=True)
         return Response(serializer.data)
 
     @action(methods=['post', 'delete'], detail=False,
