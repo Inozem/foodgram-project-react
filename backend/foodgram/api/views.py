@@ -72,7 +72,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if error:
             return request
         context = {'request': self.request}
-        print(request.data, context)
         serializer = RecipeCreateSerializer(data=request.data, context=context)
         if serializer.is_valid():
             serializer.save()

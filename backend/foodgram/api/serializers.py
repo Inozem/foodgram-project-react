@@ -1,5 +1,4 @@
-from django.contrib.auth.hashers import make_password
-from django.core.exceptions import ValidationError
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from recipes.models import Ingredient, Ingredients_amount, Recipe, Tag
@@ -56,10 +55,11 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     ingredients = IngredientsAmountSerializer(many=True)
 
+
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients', 'name', 'text',
-                  'cooking_time')
+        fields = ('id', 'tags', 'author', 'ingredients', 'name', 'image',
+                  'text', 'cooking_time')
 
     def get_author(self, value):
         request = self.context['request']
@@ -76,11 +76,12 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     """Класс создания рецептов."""
+    image = Base64ImageField(required=False)
 
     class Meta:
         model = Recipe
         fields = ('ingredients', 'tags', 'name', 'text', 'cooking_time',
-                  'author')
+                  'author', 'image')
 
     def to_representation(self, instance):
         request = self.context.get('request')
