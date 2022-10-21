@@ -35,6 +35,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients = []
         request_ingredients = request.data['ingredients']
         for ingredient in request_ingredients:
+            print(ingredients, request.data['ingredients'], id)
+            print(ingredient['id'])
             ingredient_obj = get_object_or_404(Ingredient, id=ingredient['id'])
             try:
                 ingredients_amount = Ingredients_amount.objects.get(
@@ -89,15 +91,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, pk=None):
         recipe = self.is_author(request, pk)
         if recipe:
-            context = {'request': self.request}
-            serializer = self.serializer_class(
+            request = self.request
+            if 'ingredients' in request.data:
+                error, request = self.creating_ingredients(request)
+                if error:
+                    return request
+            context = {'request': request}
+            serializer = RecipeCreateSerializer(
                 recipe,
                 data=request.data,
                 context=context,
                 partial=True
             )
-            serializer.is_valid()
-            serializer.save()
+            print(request.data, context)
+            if serializer.is_valid():
+                serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(self.RESPONSE_DETAIL, status=status.HTTP_403_FORBIDDEN)
 
