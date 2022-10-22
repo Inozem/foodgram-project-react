@@ -31,11 +31,10 @@ class Ingredients_amount(models.Model):
         related_name='ingredient',
         verbose_name='Ингредиент'
     )
-    amount = models.FloatField(verbose_name='Количество')
+    amount = models.IntegerField(verbose_name='Количество')
 
     def __str__(self):
-        return (f'{self.ingredient.name} - '
-                f'{self.amount} {self.ingredient.measurement_unit}')
+        return f'{self.ingredient} - {self.amount}'
 
     class Meta:
         verbose_name = 'Кол-во ингредиентов'
@@ -118,3 +117,23 @@ class Favorite(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
+
+
+class ShoppingCart(models.Model):
+    """Класс избранное."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart_owner',
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='recipe_in_shopping_cart',
+        verbose_name='Рецепт'
+    )
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Список покупок'

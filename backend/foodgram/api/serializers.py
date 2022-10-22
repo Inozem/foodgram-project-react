@@ -1,7 +1,8 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
-from recipes.models import Ingredient, Ingredients_amount, Recipe, Tag
+from recipes.models import (Favorite, Ingredient, Ingredients_amount, Recipe,
+                            ShoppingCart, Tag)
 from users.serializers import UserActionGetSerializer
 
 
@@ -54,11 +55,14 @@ class RecipeSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     tags = TagSerializer(many=True)
     ingredients = IngredientsAmountSerializer(many=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients', 'name', 'image',
-                  'text', 'cooking_time')
+        fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
+                  'is_in_shopping_cart', 'name', 'image', 'text',
+                  'cooking_time')
 
     def get_author(self, value):
         request = self.context['request']
@@ -66,6 +70,21 @@ class RecipeSerializer(serializers.ModelSerializer):
         context = {'request': request}
         serializer = UserActionGetSerializer(author, context=context)
         return serializer.data
+
+    def get_is_favorited(self, value):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            favorite = Favorite.objects.filter(recipe=value, user=user)
+            return favorite.exists()
+        return False  # Если пользователь аноним
+
+    def get_is_in_shopping_cart(self, value):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            shopping_cart = ShoppingCart.objects.filter(recipe=value,
+                                                        user=user)
+            return shopping_cart.exists()
+        return False  # Если пользователь аноним
 
     def validate_cooking_time(self, value):
         if value >= 1:

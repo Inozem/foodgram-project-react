@@ -9,7 +9,7 @@ from api.serializers import (IngredientsAmountCreateRecipeSerializer,
                              IngredientSerializer, RecipeCreateSerializer,
                              RecipeSerializer, TagSerializer)
 from recipes.models import (Favorite, Ingredient, Ingredients_amount, Recipe,
-                            Tag)
+                            ShoppingCart, Tag)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -136,6 +136,28 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE' and is_favorite:
             favorite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        response = {'errors': response_errors[request.method]}
+        return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post', 'delete'], detail=False,
+            url_path='(?P<pk>[^/.]+)/shopping_cart',
+            permission_classes=[IsAuthenticated])
+    def shopping_cart(self, request, pk):
+        response_errors = {
+            'POST': 'Вы уже добавили этот рецепт в список покупок',
+            'DELETE': 'Вы еще не добавили этот рецепт в список покупок',
+        }
+        recipe = get_object_or_404(Recipe, pk=pk)
+        user = request.user
+        shopping_cart = ShoppingCart.objects.filter(recipe=recipe, user=user)
+        is_in_shopping_cart = bool(shopping_cart)
+        if request.method == 'POST' and not is_in_shopping_cart:
+            shopping_cart = ShoppingCart(recipe=recipe, user=user)
+            shopping_cart.save()
+            return Response(status=status.HTTP_201_CREATED)
+        elif request.method == 'DELETE' and is_in_shopping_cart:
+            shopping_cart.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         response = {'errors': response_errors[request.method]}
         return Response(response, status=status.HTTP_400_BAD_REQUEST)
