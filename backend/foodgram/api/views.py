@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.response import Response
 
 from api.filters import RecipeFilterSet
@@ -14,6 +14,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('^name',)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -35,8 +37,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients = []
         request_ingredients = request.data['ingredients']
         for ingredient in request_ingredients:
-            print(ingredients, request.data['ingredients'], id)
-            print(ingredient['id'])
             ingredient_obj = get_object_or_404(Ingredient, id=ingredient['id'])
             try:
                 ingredients_amount = Ingredients_amount.objects.get(
@@ -103,7 +103,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 context=context,
                 partial=True
             )
-            print(request.data, context)
             if serializer.is_valid():
                 serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
