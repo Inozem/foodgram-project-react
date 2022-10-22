@@ -1,12 +1,15 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.filters import RecipeFilterSet
 from api.serializers import (IngredientsAmountCreateRecipeSerializer,
                              IngredientSerializer, RecipeCreateSerializer,
                              RecipeSerializer, TagSerializer)
-from recipes.models import Ingredient, Ingredients_amount, Recipe, Tag
+from recipes.models import (Favorite, Ingredient, Ingredients_amount, Recipe,
+                            Tag)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -114,3 +117,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(self.RESPONSE_DETAIL, status=status.HTTP_403_FORBIDDEN)
+
+    @action(methods=['post', 'delete'], detail=False,
+            url_path='(?P<pk>[^/.]+)/favorite',
+            permission_classes=[IsAuthenticated])
+    def favorite(self, request, pk):
+        response_errors = {
+            'POST': 'Вы уже добавили этот рецепт в избранное',
+            'DELETE': 'Вы еще не добавили этот рецепт в избранное',
+        }
+        recipe = get_object_or_404(Recipe, pk=pk)
+        user = request.user
+        favorite = Favorite.objects.filter(recipe=recipe, user=user)
+        is_favorite = bool(favorite)
+        if request.method == 'POST' and not is_favorite:
+            favorite = Favorite(recipe=recipe, user=user)
+            favorite.save()
+            return Response(status=status.HTTP_201_CREATED)
+        elif request.method == 'DELETE' and is_favorite:
+            favorite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        response = {'errors': response_errors[request.method]}
+        return Response(response, status=status.HTTP_400_BAD_REQUEST)

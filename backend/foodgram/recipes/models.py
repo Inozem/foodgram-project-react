@@ -98,3 +98,23 @@ class Recipe(models.Model):
         ordering = ('-created',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+
+
+class Favorite(models.Model):
+    """Класс избранное."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='user',
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorite_recipe',
+        verbose_name='Рецепт'
+    )
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
