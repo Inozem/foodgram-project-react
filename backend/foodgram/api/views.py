@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
@@ -161,3 +162,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         response = {'errors': response_errors[request.method]}
         return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, url_path='download_shopping_cart',
+            permission_classes=[IsAuthenticated])
+    def download_shopping_cart(self, request):
+        response = HttpResponse(content_type='text/plain')
+        response['Content-Disposition'] = ('attachment; '
+                                           'filename="shopping_cart.txt"')
+        shopping_cart_ingredients = {}
+        carts = ShoppingCart.objects.filter(user=request.user)
+        shopping_cart = [cart.recipe.ingredients.all() for cart in carts]
+        for ingredients in shopping_cart:
+            for ingredient in ingredients:
+                name = ingredient.ingredient.__str__()
+                amount = ingredient.amount
+                if name in shopping_cart_ingredients:
+                    shopping_cart_ingredients[name] += amount
+                else:
+                    shopping_cart_ingredients[name] = amount
+        ingredients = ''
+        for name, amount in shopping_cart_ingredients.items():
+            ingredients += f'{name} - {amount} \n'
+        response.write(ingredients)
+        return response
