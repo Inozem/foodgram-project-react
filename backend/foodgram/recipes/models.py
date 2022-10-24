@@ -19,6 +19,7 @@ class Ingredient(models.Model):
         return f'{self.name} ({self.measurement_unit})'
 
     class Meta:
+        unique_together = ('name', 'measurement_unit')
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
 
@@ -37,6 +38,7 @@ class Ingredients_amount(models.Model):
         return f'{self.ingredient} - {self.amount}'
 
     class Meta:
+        unique_together = ('ingredient', 'amount')
         verbose_name = 'Кол-во ингредиентов'
         verbose_name_plural = 'Кол-во ингредиентов'
 
@@ -115,6 +117,7 @@ class Favorite(models.Model):
     )
 
     class Meta:
+        unique_together = ('user', 'recipe')
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
 
@@ -135,5 +138,6 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
+        unique_together = ('user', 'recipe')
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
