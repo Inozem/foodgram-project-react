@@ -5,6 +5,16 @@ from django.db import models
 class User(AbstractUser):
     """Класс пользователя."""
     email = models.EmailField(unique=True)
+    first_name = models.CharField(
+        max_length=254,
+        verbose_name='Имя',
+        blank=False,
+    )
+    last_name = models.CharField(
+        max_length=254,
+        verbose_name='Фамилия',
+        blank=False,
+    )
 
 
 class Subscription(models.Model):

@@ -15,17 +15,6 @@ class CustomUserSerializer(UserSerializer):
                   'password')
         extra_kwargs = {'password': {'write_only': True}}
 
-    def create(self, validated_data):
-        user = User.objects.create(
-            password=make_password(validated_data['password']),
-            email=validated_data['email'],
-            username=validated_data['username'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-        )
-        user.save()
-        return user
-
     def validate_username(self, value):
         if value.lower() == 'me':
             raise ValidationError('Нельзя создать пользователя me')
@@ -54,7 +43,7 @@ class SubscriptionRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'cooking_time')
+        fields = ('id', 'name', 'cooking_time', 'image')
 
 
 class SubscriptionSerializer(UserActionGetSerializer):
@@ -81,16 +70,3 @@ class SubscriptionSerializer(UserActionGetSerializer):
 
     def get_recipes_count(self, value):
         return len(Recipe.objects.filter(author=value))
-
-
-class ChangePasswordSerializer(UserSerializer):
-    """Класс изменения пароля у пользователя"""
-    current_password = serializers.CharField(source='password', required=True)
-    new_password = serializers.CharField(required=True)
-
-    class Meta:
-        model = User
-        fields = ('new_password', 'current_password')
-
-    def validate_new_password(self, value):
-        return make_password(value)

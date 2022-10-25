@@ -1,33 +1,21 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, status, viewsets
+from djoser.views import UserViewSet
+from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from users.models import Subscription, User
 from users.serializers import (CustomUserSerializer, UserActionGetSerializer,
-                               ChangePasswordSerializer,
                                SubscriptionSerializer)
 
 
-class CreateListRetrieveViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet
-):
-    pass
-
-
-class UserViewSet(CreateListRetrieveViewSet):
+class CustomUserViewSet(UserViewSet):
     """Класс регистрации и работы с пользователями и подписками на авторов"""
     queryset = User.objects.all()
+    serializer_class = CustomUserSerializer
     permission_classes = (AllowAny,)
-
-    def get_serializer_class(self):
-        if self.action in ('retrieve', 'list'):
-            return UserActionGetSerializer
-        return CustomUserSerializer
 
     @action(detail=False, url_path='me', permission_classes=[IsAuthenticated])
     def me(self, request):
@@ -35,29 +23,17 @@ class UserViewSet(CreateListRetrieveViewSet):
         serializer = UserActionGetSerializer(request.user, context=context)
         return Response(serializer.data)
 
-    @action(methods=['post'], detail=False, url_path='set_password',
+    @action(detail=False, url_path='subscriptions',
             permission_classes=[IsAuthenticated])
-    def set_password(self, request):
-        serializer = ChangePasswordSerializer(data=request.data)
-        if serializer.is_valid():
-            email = self.request.user.email
-            current_password = serializer.validated_data['password']
-            new_password = serializer.validated_data['new_password']
-            user = get_object_or_404(User, email=email)
-            if user.check_password(current_password):
-                user.password = new_password
-                user.save()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, url_path='subscribtions',
-            permission_classes=[IsAuthenticated])
-    def subscribtions(self, request):
+    def subscriptions(self, request):
         authors = User.objects.filter(author__user=request.user)
+        paginator = PageNumberPagination()
+        result_pages = paginator.paginate_queryset(queryset=authors,
+                                                   request=request)
         context = {'request': self.request}
-        serializer = SubscriptionSerializer(authors, context=context,
+        serializer = SubscriptionSerializer(result_pages, context=context,
                                             many=True)
-        return Response(serializer.data)
+        return paginator.get_paginated_response(serializer.data)
 
     @action(methods=['post', 'delete'], detail=False,
             url_path='(?P<pk>[^/.]+)/subscribe',
