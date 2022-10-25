@@ -135,5 +135,5 @@ DJOSER = {
 AUTH_USER_MODEL = 'users.User'
 
 # Обработка запросов с фронтенда
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = False
 CORS_URLS_REGEX = r'^/api/.*$'
