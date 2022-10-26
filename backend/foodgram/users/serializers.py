@@ -15,6 +15,17 @@ class CustomUserSerializer(UserSerializer):
                   'password')
         extra_kwargs = {'password': {'write_only': True}}
 
+    def create(self, validated_data):
+        user = User.objects.create(
+            password=make_password(validated_data['password']),
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+        )
+        user.save()
+        return user
+
     def validate_username(self, value):
         if value.lower() == 'me':
             raise ValidationError('Нельзя создать пользователя me')
@@ -38,12 +49,12 @@ class UserActionGetSerializer(UserSerializer):
         return False  # Если пользователь аноним
 
 
-class SubscriptionRecipeSerializer(serializers.ModelSerializer):
-    """Класс получения рецептов авторов, на которых подписан."""
+class RecipePartInfoSerializer(serializers.ModelSerializer):
+    """Класс рецептов с минимальным количеством информации."""
 
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'cooking_time', 'image')
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class SubscriptionSerializer(UserActionGetSerializer):
@@ -59,12 +70,9 @@ class SubscriptionSerializer(UserActionGetSerializer):
 
     def get_recipes(self, value):
         serialized_recipes = []
-        request = self.context.get('request')
-        context = {'request': request}
         recipes = Recipe.objects.filter(author=value)
         for recipe in recipes:
-            serialized_recipe = SubscriptionRecipeSerializer(recipe,
-                                                             context=context)
+            serialized_recipe = RecipePartInfoSerializer(recipe)
             serialized_recipes.append(serialized_recipe.data)
         return serialized_recipes
 

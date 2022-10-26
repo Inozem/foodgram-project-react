@@ -51,7 +51,10 @@ class CustomUserViewSet(UserViewSet):
         if request.method == 'POST' and author != user and not is_subscribed:
             subscription = Subscription(author=author, user=user)
             subscription.save()
-            return Response(status=status.HTTP_201_CREATED)
+            request = self.request
+            context = {'request': request}
+            serializer = SubscriptionSerializer(author, context=context,)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE' and is_subscribed:
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)

@@ -2,15 +2,17 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.filters import RecipeFilterSet
 from api.serializers import (IngredientsAmountCreateRecipeSerializer,
                              IngredientSerializer, RecipeCreateSerializer,
-                             RecipeSerializer, TagSerializer)
+                             RecipeSerializer,
+                             TagSerializer)
 from recipes.models import (Favorite, Ingredient, Ingredients_amount, Recipe,
                             ShoppingCart, Tag)
+from users.serializers import RecipePartInfoSerializer
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -135,7 +137,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST' and not is_favorite:
             favorite = Favorite(recipe=recipe, user=user)
             favorite.save()
-            return Response(status=status.HTTP_201_CREATED)
+            serializer = RecipePartInfoSerializer(recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE' and is_favorite:
             favorite.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -157,7 +160,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST' and not is_in_shopping_cart:
             shopping_cart = ShoppingCart(recipe=recipe, user=user)
             shopping_cart.save()
-            return Response(status=status.HTTP_201_CREATED)
+            serializer = RecipePartInfoSerializer(recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE' and is_in_shopping_cart:
             shopping_cart.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
