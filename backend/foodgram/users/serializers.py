@@ -1,3 +1,5 @@
+from re import fullmatch
+
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from djoser.serializers import UserSerializer
@@ -28,7 +30,10 @@ class CustomUserSerializer(UserSerializer):
 
     def validate_username(self, value):
         if value.lower() == 'me':
-            raise ValidationError('Нельзя создать пользователя me')
+            raise ValidationError('Нельзя создать пользователя с именем me')
+        elif not fullmatch(r'[a-zA-Z0-9.@+-]{1,150}', value):
+            raise ValidationError('Имя пользователя может содержать только '
+                                  'латинские буквы, цифры и символы: @.+-')
         return value
 
 

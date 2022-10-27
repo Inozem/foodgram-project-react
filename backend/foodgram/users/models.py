@@ -33,5 +33,6 @@ class Subscription(models.Model):
     )
 
     class Meta:
+        unique_together = ('user', 'author')
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'

@@ -137,3 +137,6 @@ AUTH_USER_MODEL = 'users.User'
 # Обработка запросов с фронтенда
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_URLS_REGEX = r'^/api/.*$'
+
+MIN_COOKING_TIME = 1
+MIN_INGREDIENTS_AMOUNT = 1

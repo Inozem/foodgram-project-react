@@ -1,4 +1,6 @@
 from colorfield.fields import ColorField
+from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from users.models import User
@@ -32,7 +34,10 @@ class Ingredients_amount(models.Model):
         related_name='ingredient',
         verbose_name='Ингредиент'
     )
-    amount = models.IntegerField(verbose_name='Количество')
+    amount = models.PositiveIntegerField(
+        verbose_name='Кол-во',
+        validators=(MinValueValidator(settings.MIN_INGREDIENTS_AMOUNT),)
+    )
 
     def __str__(self):
         return f'{self.ingredient} - {self.amount}'
@@ -86,7 +91,10 @@ class Recipe(models.Model):
         related_name='tags',
         verbose_name='Тэги',
     )
-    cooking_time = models.IntegerField(verbose_name='Время приготовления')
+    cooking_time = models.PositiveIntegerField(
+        verbose_name='Время готовки',
+        validators=(MinValueValidator(settings.MIN_COOKING_TIME),)
+    )
     created = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True

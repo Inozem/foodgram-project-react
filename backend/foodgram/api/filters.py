@@ -1,12 +1,16 @@
-from django_filters.rest_framework import FilterSet, NumberFilter, CharFilter
+from django_filters.rest_framework import filters, FilterSet, NumberFilter
 
-from recipes.models import Recipe
+from recipes.models import Recipe, Tag
 
 
 class RecipeFilterSet(FilterSet):
     """Класс фильтрации рецептов."""
     author = NumberFilter(field_name='author__id')
-    tags = CharFilter(field_name='tags__slug')
+    tags = filters.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        to_field_name='slug',
+        queryset=Tag.objects.all()
+    )
     is_favorited = NumberFilter(method='filter_is_favorited')
     is_in_shopping_cart = NumberFilter(method='filter_shopping_cart')
 
