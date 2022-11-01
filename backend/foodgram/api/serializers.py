@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
@@ -31,18 +33,6 @@ class IngredientsAmountSerializer(serializers.ModelSerializer):
         return measurement_unit
 
 
-class IngredientsAmountCreateRecipeSerializer(serializers.ModelSerializer):
-    """Класс количества ингредиентов для создания рецептов."""
-    class Meta:
-        model = Ingredients_amount
-        fields = ('ingredient', 'amount')
-
-    def validate_amount(self, value):
-        if value > 0:
-            return value
-        raise serializers.ValidationError('Количество должно быть больше 0')
-
-
 class TagSerializer(serializers.ModelSerializer):
     """Класс тэгов."""
     class Meta:
@@ -71,35 +61,52 @@ class RecipeSerializer(serializers.ModelSerializer):
         serializer = UserActionGetSerializer(author, context=context)
         return serializer.data
 
-    def get_is_favorited(self, value):
+    def favorited_or_in_shopping_cart(self, value, obj):
         user = self.context['request'].user
         if user.is_authenticated:
-            favorite = Favorite.objects.filter(recipe=value, user=user)
-            return favorite.exists()
+            object = obj.objects.filter(recipe=value, user=user)
+            return object.exists()
         return False  # Если пользователь аноним
+
+    def get_is_favorited(self, value):
+        return self.favorited_or_in_shopping_cart(value, obj=Favorite)
 
     def get_is_in_shopping_cart(self, value):
-        user = self.context['request'].user
-        if user.is_authenticated:
-            shopping_cart = ShoppingCart.objects.filter(recipe=value,
-                                                        user=user)
-            return shopping_cart.exists()
-        return False  # Если пользователь аноним
+        return self.favorited_or_in_shopping_cart(value, obj=ShoppingCart)
 
     def validate_cooking_time(self, value):
-        if value >= 1:
+        if value >= settings.MIN_COOKING_TIME:
             return value
         raise serializers.ValidationError('Время готовки должно быть больше 0')
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     """Класс создания рецептов."""
-    image = Base64ImageField(required=False)
+    image = Base64ImageField()
+    ingredients = serializers.ListField()
 
     class Meta:
         model = Recipe
         fields = ('ingredients', 'tags', 'name', 'text', 'cooking_time',
                   'author', 'image')
+
+    def validate_ingredients(self, value):
+        validated_ingredients = []
+        for ingredient_value in value:
+            min_amount = settings.MIN_INGREDIENTS_AMOUNT
+            if int(ingredient_value['amount']) >= min_amount:
+                ingredient_id = ingredient_value['id']
+                ingredient = get_object_or_404(Ingredient, id=ingredient_id)
+                ingredients_amount = Ingredients_amount.objects.get_or_create(
+                    ingredient=ingredient,
+                    amount=ingredient_value['amount'],
+                )
+                validated_ingredients.append(ingredients_amount[0].id)
+            else:
+                raise serializers.ValidationError(
+                    'Количество ингредиентов должно быть больше 0'
+                )
+        return validated_ingredients
 
     def to_representation(self, instance):
         request = self.context.get('request')

@@ -1,17 +1,14 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api.filters import RecipeFilterSet
-from api.serializers import (IngredientsAmountCreateRecipeSerializer,
-                             IngredientSerializer, RecipeCreateSerializer,
-                             RecipeSerializer,
-                             TagSerializer)
-from recipes.models import (Favorite, Ingredient, Ingredients_amount, Recipe,
-                            ShoppingCart, Tag)
+from api.filters import IngredientSearchFilterSet, RecipeFilterSet
+from api.serializers import (IngredientSerializer, RecipeCreateSerializer,
+                             RecipeSerializer, TagSerializer)
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from users.serializers import RecipePartInfoSerializer
 
 
@@ -20,8 +17,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    filter_backends = (filters.SearchFilter, )
-    search_fields = ('^name',)
+    filterset_class = IngredientSearchFilterSet
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -40,46 +36,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     filterset_class = RecipeFilterSet
 
-    def creating_ingredients(self, request):
-        ingredients = []
-        request_ingredients = request.data['ingredients']
-        for ingredient in request_ingredients:
-            ingredient_obj = get_object_or_404(Ingredient, id=ingredient['id'])
-            try:
-                ingredients_amount = Ingredients_amount.objects.get(
-                    ingredient=ingredient_obj,
-                    amount=ingredient['amount']
-                )
-                ingredients.append(ingredients_amount.id)
-            except:
-                data = {
-                    'ingredient': ingredient_obj.id,
-                    'amount': ingredient['amount']
-                }
-                context = data
-                serializer = IngredientsAmountCreateRecipeSerializer(
-                    data=data,
-                    context=context
-                )
-                if serializer.is_valid():
-                    ingredients_amount = Ingredients_amount.objects.create(
-                        ingredient=ingredient_obj,
-                        amount=ingredient['amount']
-                    )
-                    ingredients_amount.save
-                    ingredients.append(ingredients_amount.id)
-                else:
-                    status400 = status.HTTP_400_BAD_REQUEST
-                    return 'Error', Response(serializer.errors,
-                                             status=status400)
-        request.data['ingredients'] = ingredients
-        return None, request
-
     def create(self, request):
         request.data['author'] = request.user.id
-        error, request = self.creating_ingredients(request)
-        if error:
-            return request
         context = {'request': self.request}
         serializer = RecipeCreateSerializer(data=request.data, context=context)
         if serializer.is_valid():
@@ -98,11 +56,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, pk=None):
         recipe = self.is_author(request, pk)
         if recipe:
-            request = self.request
-            if 'ingredients' in request.data:
-                error, request = self.creating_ingredients(request)
-                if error:
-                    return request
             context = {'request': request}
             serializer = RecipeCreateSerializer(
                 recipe,
@@ -178,14 +131,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         carts = ShoppingCart.objects.filter(user=request.user)
         shopping_cart = [cart.recipe.ingredients.all() for cart in carts]
         for ingredients in shopping_cart:
-            for ingredient in ingredients:
-                name = ingredient.ingredient.__str__()
-                amount = ingredient.amount
+            for ingredients_amount in ingredients:
+                name = f'{ingredients_amount.ingredient.name} '
+                name += f'({ingredients_amount.ingredient.measurement_unit})'
+                amount = ingredients_amount.amount
                 if name in shopping_cart_ingredients:
                     shopping_cart_ingredients[name] += amount
                 else:
                     shopping_cart_ingredients[name] = amount
-        ingredients = ''
+        ingredients = 'Список покупок:\n'
         for name, amount in shopping_cart_ingredients.items():
             ingredients += f'{name} - {amount} \n'
         response.write(ingredients)

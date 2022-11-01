@@ -34,9 +34,10 @@ class Ingredients_amount(models.Model):
         related_name='ingredient',
         verbose_name='Ингредиент'
     )
-    amount = models.PositiveIntegerField(
+    amount = models.PositiveSmallIntegerField(
         verbose_name='Кол-во',
-        validators=(MinValueValidator(settings.MIN_INGREDIENTS_AMOUNT),)
+        validators=(MinValueValidator(settings.MIN_INGREDIENTS_AMOUNT),),
+        unique=True,
     )
 
     def __str__(self):
@@ -77,13 +78,12 @@ class Recipe(models.Model):
     name = models.CharField(max_length=200, verbose_name='Название')
     image = models.ImageField(
         upload_to='recipes/images/',
-        null=True,
-        default=None
+        null=False,
     )
     text = models.TextField(verbose_name='Текст')
     ingredients = models.ManyToManyField(
         Ingredients_amount,
-        related_name='ingredients_amount',
+        related_name='ingredients',
         verbose_name='Ингредиенты'
     )
     tags = models.ManyToManyField(
@@ -91,7 +91,7 @@ class Recipe(models.Model):
         related_name='tags',
         verbose_name='Тэги',
     )
-    cooking_time = models.PositiveIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время готовки',
         validators=(MinValueValidator(settings.MIN_COOKING_TIME),)
     )
