@@ -21,38 +21,38 @@
 Перед началом запуска проекта, убедитесь, что у вас установлен Docker.
 
 Клонируйте [репозитарий foodgram-project-react с GitHub](https://hub.docker.com/).
-'''
+```
 git clone git@github.com:Inozem/foodgram-project-react.git
-'''
+```
 
 Для развертывания проекта войдите в папку infra/ и выполните следующую команду:
-'''
+```
 docker-compose up -d --build
-'''
+```
 
 После того как все контейнеры будут развернуты, необходимо выполнить миграции.
-'''
+```
 docker-compose exec backend python manage.py migrate
-'''
+```
 
 Создайте суперпользователя.
-'''
+```
 docker-compose exec backend python manage.py createsuperuser
-'''
+```
 
 Соберите статику.
-'''
+```
 docker-compose exec backend python manage.py collectstatic --no-input
-'''
+```
 
 Загрузите список ингредиентов в базу данных.
-'''
+```
 docker-compose exec backend python manage.py add_ingredients
-'''
+```
 
 Перед тем как приступить к тестированию непосредственно функционала сайта, войдите в [панель администратора](http://localhost/admin/), используя логин и пароль суперпользователя, и создайте несколько тегов и рецептов. Теперь все готово, зарегестрируйтесь новым пользователем на [сайте](http://localhost/) и приступайте к тестированию.
 
 Для того, чтобы остановить работу контейноров - воспользуйтесь следующей командой:
-'''
+```
 docker-compose down -v 
-'''
+```
