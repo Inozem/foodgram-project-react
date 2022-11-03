@@ -38,5 +38,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://backend:3002"
+  "proxy": "http://web:8000"
 }
