@@ -18,41 +18,54 @@
 - djoser 2.1.0
 
 ## Запуск проекта локально
-Перед началом запуска проекта, убедитесь, что у вас установлен Docker.
+1. В директории backend/foodgram/foodgram создайте .env и заполните переменными окружения.
+```
+DEBUG=''
+ALLOWED_HOSTS='localhost 127.0.0.1 http://localhost:3000 backend'
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=postgres
+POSTGRES_USER=Admin
+POSTGRES_PASSWORD=qweqwe
+DB_HOST=db
+DB_PORT=5432
+SECRET_KEY='django-insecure-0q@sllks6!(0@04u-yl8b1i2qn^ktd+txn8ec43+-4t(^paw9b'
+```
 
-Клонируйте [репозитарий foodgram-project-react с GitHub](https://hub.docker.com/).
+2. Перед началом запуска проекта, убедитесь, что у вас установлен Docker.
+
+3. Клонируйте [репозитарий foodgram-project-react с GitHub](https://hub.docker.com/).
 ```
 git clone git@github.com:Inozem/foodgram-project-react.git
 ```
 
-Для развертывания проекта войдите в папку infra/ и выполните следующую команду:
+4. Для развертывания проекта войдите в папку infra/ и выполните следующую команду:
 ```
 docker-compose up -d --build
 ```
 
-После того как все контейнеры будут развернуты, необходимо выполнить миграции.
+5. После того как все контейнеры будут развернуты, необходимо выполнить миграции.
 ```
 docker-compose exec backend python manage.py migrate
 ```
 
-Создайте суперпользователя.
+6. Создайте суперпользователя.
 ```
 docker-compose exec backend python manage.py createsuperuser
 ```
 
-Соберите статику.
+7. Соберите статику.
 ```
 docker-compose exec backend python manage.py collectstatic --no-input
 ```
 
-Загрузите список ингредиентов в базу данных.
+8. Загрузите список ингредиентов в базу данных.
 ```
 docker-compose exec backend python manage.py add_ingredients
 ```
 
-Перед тем как приступить к тестированию непосредственно функционала сайта, войдите в [панель администратора](http://localhost/admin/), используя логин и пароль суперпользователя, и создайте несколько тегов и рецептов. Теперь все готово, зарегестрируйтесь новым пользователем на [сайте](http://localhost/) и приступайте к тестированию.
+9. Перед тем как приступить к тестированию непосредственно функционала сайта, войдите в [панель администратора](http://localhost/admin/), используя логин и пароль суперпользователя, и создайте несколько тегов и рецептов. Теперь все готово, зарегестрируйтесь новым пользователем на [сайте](http://localhost/) и приступайте к тестированию.
 
-Для того, чтобы остановить работу контейноров - воспользуйтесь следующей командой:
+10. Для того, чтобы остановить работу контейноров - воспользуйтесь следующей командой:
 ```
 docker-compose down -v 
 ```
