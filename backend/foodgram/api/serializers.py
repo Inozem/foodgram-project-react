@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
-from recipes.models import (Favorite, Ingredient, Ingredients_amount, Recipe,
+from recipes.models import (Favorite, Ingredient, IngredientsAmount, Recipe,
                             ShoppingCart, Tag)
 from users.serializers import UserActionGetSerializer
 
@@ -21,7 +21,7 @@ class IngredientsAmountSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.SerializerMethodField()
 
     class Meta:
-        model = Ingredients_amount
+        model = IngredientsAmount
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
     def get_name(self, value):
@@ -97,7 +97,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             if int(ingredient_value['amount']) >= min_amount:
                 ingredient_id = ingredient_value['id']
                 ingredient = get_object_or_404(Ingredient, id=ingredient_id)
-                ingredients_amount = Ingredients_amount.objects.get_or_create(
+                ingredients_amount = IngredientsAmount.objects.get_or_create(
                     ingredient=ingredient,
                     amount=ingredient_value['amount'],
                 )

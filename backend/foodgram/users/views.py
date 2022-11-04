@@ -55,7 +55,7 @@ class CustomUserViewSet(UserViewSet):
             context = {'request': request}
             serializer = SubscriptionSerializer(author, context=context,)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif request.method == 'DELETE' and is_subscribed:
+        if request.method == 'DELETE' and is_subscribed:
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         response = {'errors': response_errors[request.method]}

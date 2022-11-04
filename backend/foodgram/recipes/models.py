@@ -26,7 +26,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
 
 
-class Ingredients_amount(models.Model):
+class IngredientsAmount(models.Model):
     """Класс количества ингредиентов."""
     ingredient = models.ForeignKey(
         Ingredient,
@@ -82,7 +82,7 @@ class Recipe(models.Model):
     )
     text = models.TextField(verbose_name='Текст')
     ingredients = models.ManyToManyField(
-        Ingredients_amount,
+        IngredientsAmount,
         related_name='ingredients',
         verbose_name='Ингредиенты'
     )

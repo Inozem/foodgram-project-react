@@ -92,7 +92,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             favorite.save()
             serializer = RecipePartInfoSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif request.method == 'DELETE' and is_favorite:
+        if request.method == 'DELETE' and is_favorite:
             favorite.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         response = {'errors': response_errors[request.method]}
@@ -115,7 +115,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             shopping_cart.save()
             serializer = RecipePartInfoSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif request.method == 'DELETE' and is_in_shopping_cart:
+        if request.method == 'DELETE' and is_in_shopping_cart:
             shopping_cart.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         response = {'errors': response_errors[request.method]}

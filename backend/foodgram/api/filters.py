@@ -27,7 +27,7 @@ class RecipeFilterSet(FilterSet):
         user = self.request.user
         if value == 1:
             return queryset.filter(favorite_recipe__user=user)
-        elif value == 0:
+        if value == 0:
             return queryset.exclude(favorite_recipe__user=user)
         return queryset
 
@@ -35,7 +35,7 @@ class RecipeFilterSet(FilterSet):
         user = self.request.user
         if value == 1:
             return queryset.filter(recipe_in_shopping_cart__user=user)
-        elif value == 0:
+        if value == 0:
             return queryset.exclude(recipe_in_shopping_cart__user=user)
         return queryset
 
