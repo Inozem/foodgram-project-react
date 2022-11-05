@@ -7,9 +7,10 @@ services:
     env_file:
       - ../backend/foodgram/foodgram/.env
   backend:
-    build:
-      context: ../backend/foodgram
-      dockerfile: Dockerfile
+    # build:
+      # context: ../backend/foodgram
+      # dockerfile: Dockerfile
+    image: inozem/api_yamdb
     restart: always
     volumes:
       - static_value:/app/static/
