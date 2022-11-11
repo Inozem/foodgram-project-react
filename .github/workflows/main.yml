@@ -54,7 +54,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            cd backend/foodgram/
+            cd Dev/foodgram-project-react/backend/foodgram/
             sudo docker-compose stop
             sudo docker-compose rm backend
             touch .env
@@ -68,4 +68,3 @@ jobs:
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             sudo docker-compose up -d
-
