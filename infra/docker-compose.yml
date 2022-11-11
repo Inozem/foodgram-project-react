@@ -11,7 +11,7 @@ services:
     # build:
       # context: ../backend/foodgram
       # dockerfile: Dockerfile
-    image: inozem/api_yamdb
+    image: inozem/foodgram_backend
     restart: always
     volumes:
       - static_value:/app/static/
@@ -22,9 +22,10 @@ services:
       # - ../backend/foodgram/foodgram/.env 1
       - ./.env
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    # build:
+      # context: ../frontend
+      # dockerfile: Dockerfile
+    image: inozem/foodgram_frontend
     volumes:
       - ../frontend/:/app/result_build/
   nginx:
