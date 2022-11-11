@@ -19,7 +19,8 @@ services:
     depends_on:
       - db
     env_file:
-      - ../backend/foodgram/foodgram/.env
+      # - ../backend/foodgram/foodgram/.env
+      - ./.env
   frontend:
     build:
       context: ../frontend
