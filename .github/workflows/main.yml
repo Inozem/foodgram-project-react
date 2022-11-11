@@ -68,7 +68,6 @@ jobs:
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             sudo docker-compose up -d
             sudo docker-compose exec web python manage.py migrate
-            sudo docker-compose exec web python manage.py createsuperuser --username admin --password Q1w23456 --noinput --email 'admin@qwe.qwe'
             sudo docker-compose exec web python manage.py collectstatic --no-input 
 
 
