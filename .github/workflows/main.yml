@@ -68,7 +68,7 @@ jobs:
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             sudo docker-compose up -d
             sudo docker-compose exec -T backend python manage.py migrate
-            sudo docker-compose exec -T backend python manage.py createsuperuser --username admin --password Q1w23456 --no-input --email 'admin@qwe.qwe'
+            sudo docker-compose exec -T backend python manage.py createsuperuser --schema=schema_name --username admin --password Q1w23456 --noinput --email 'admin@qwe.qwe'
             sudo docker-compose exec -T backend python manage.py collectstatic --no-input 
 
 
