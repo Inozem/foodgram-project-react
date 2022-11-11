@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
     env_file:
-      # - ../backend/foodgram/foodgram/.env
+      # - ../backend/foodgram/foodgram/.env 1
       - ./.env
   frontend:
     build:
