@@ -6,7 +6,7 @@
 - Django 3.2.15
 - Docker 20.10.17
 - Docker-compose 2.10.2
-- Gunicorn
+- Gunicorn 20.0.4
 - Nginx 1.19.3
 - PostgreSQL 13.0
 
@@ -18,7 +18,7 @@
 - djoser 2.1.0
 
 ## Запуск проекта локально
-1. В директории backend/foodgram/foodgram создайте .env и заполните переменными окружения.
+1. В директории backend/foodgram/foodgram/ создайте .env и заполните переменными окружения.
 ```
 DEBUG=''
 ALLOWED_HOSTS='localhost 127.0.0.1 http://localhost:3000 backend'
@@ -31,41 +31,61 @@ DB_PORT=5432
 SECRET_KEY='django-insecure-0q@sllks6!(0@04u-yl8b1i2qn^ktd+txn8ec43+-4t(^paw9b'
 ```
 
-2. Перед началом запуска проекта, убедитесь, что у вас установлен [Docker](https://docs.docker.com/engine/install/).
+2. В директории backend/foodgram/ в файле Dockerfile замените строку
+```
+CMD ["gunicorn", "foodgram.wsgi:application", "--bind", "0:8000" ]
+```
+на 
+```
+CMD ["python3", "manage.py", "runserver", "0:8000"]
+```
 
-3. Клонируйте [репозитарий foodgram-project-react с GitHub](https://hub.docker.com/).
+3. В директории infra/ в файле doacker-compose.yml замените 8 и 18 строки кода с содержимым
+```
+- ./.env
+```
+на 
+```
+- ../backend/foodgram/foodgram/.env
+```
+
+4. Перед началом запуска проекта, убедитесь, что у вас установлен [Docker](https://docs.docker.com/engine/install/).
+
+5. Клонируйте [репозитарий foodgram-project-react с GitHub](https://hub.docker.com/).
 ```
 git clone git@github.com:Inozem/foodgram-project-react.git
 ```
 
-4. Для развертывания проекта войдите в папку infra/ и выполните следующую команду:
+6. Для развертывания проекта войдите в папку infra/ и выполните следующую команду:
 ```
 docker-compose up -d --build
 ```
 
-5. После того как все контейнеры будут развернуты, необходимо выполнить миграции.
+7. После того как все контейнеры будут развернуты, необходимо выполнить миграции.
 ```
 docker-compose exec backend python manage.py migrate
 ```
 
-6. Создайте суперпользователя.
+8. Создайте суперпользователя.
 ```
 docker-compose exec backend python manage.py createsuperuser
 ```
 
-7. Соберите статику.
+9. Соберите статику.
 ```
 docker-compose exec backend python manage.py collectstatic --no-input
 ```
 
-8. Загрузите список ингредиентов в базу данных.
+10. Загрузите список ингредиентов в базу данных.
 ```
 docker-compose exec backend python manage.py add_ingredients
 ```
 
-9. Перед тем как приступить к тестированию непосредственно функционала сайта, войдите в [панель администратора](http://localhost/admin/), используя логин и пароль суперпользователя, и создайте несколько тегов и рецептов. Теперь все готово, зарегистрируйтесь новым пользователем на [сайте](http://localhost/) и приступайте к тестированию.
+11. Перед тем как приступить к тестированию непосредственно функционала сайта, войдите в [панель администратора](http://localhost/admin/), используя логин и пароль суперпользователя, и создайте несколько тегов и рецептов. Теперь все готово, зарегистрируйтесь новым пользователем на [сайте](http://localhost/) и приступайте к тестированию.
 
-10. Для того, чтобы остановить работу контейноров - воспользуйтесь следующей командой:
+12. Для того, чтобы остановить работу контейноров - воспользуйтесь следующей командой:
 ```
 docker-compose down -v 
 ```
+
+![CI](https://github.com/Inozem/foodgram-project-react/actions/workflows/main.yml/badge.svg?branch=master)
