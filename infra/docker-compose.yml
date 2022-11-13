@@ -6,6 +6,7 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env
+
   backend:
     image: inozem/foodgram_backend
     restart: always
@@ -20,6 +21,7 @@ services:
     image: inozem/foodgram_frontend
     volumes:
       - ../frontend/:/app/result_build/
+
   nginx:
     image: nginx:1.19.3
     ports:
