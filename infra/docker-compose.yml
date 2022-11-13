@@ -5,12 +5,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      # - ../backend/foodgram/foodgram/.env
       - ./.env
   backend:
-    # build:
-      # context: ../backend/foodgram
-      # dockerfile: Dockerfile
     image: inozem/foodgram_backend
     restart: always
     volumes:
@@ -19,12 +15,8 @@ services:
     depends_on:
       - db
     env_file:
-      # - ../backend/foodgram/foodgram/.env
       - ./.env
   frontend:
-    # build:
-      # context: ../frontend
-      # dockerfile: Dockerfile
     image: inozem/foodgram_frontend
     volumes:
       - ../frontend/:/app/result_build/
