@@ -31,6 +31,18 @@ DB_PORT=5432
 SECRET_KEY='django-insecure-0q@sllks6!(0@04u-yl8b1i2qn^ktd+txn8ec43+-4t(^paw9b'
 ```
 
+* DEBUG - это переменная, которая включает и выключает режим отладки, для включения данного режима подставьте значение '1'.
+* SECRET_KEY - это секретный ключ для корректной установки Django. Вы можете воспользоваться готовым значением или же сгенерировать свой собственный. Для второго варианта вом потребуется создать и активировать виртуальное окружение:
+```
+python -m venv venv
+venv\Scripts\activate
+```
+
+Теперь можно приступить к генерации ключа:
+```
+python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+```
+
 2. В директории backend/foodgram/ в файле Dockerfile замените строку
 ```
 CMD ["gunicorn", "foodgram.wsgi:application", "--bind", "0:8000" ]
