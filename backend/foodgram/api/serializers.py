@@ -94,18 +94,17 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         validated_ingredients = []
         for ingredient_value in value:
             min_amount = settings.MIN_INGREDIENTS_AMOUNT
-            if int(ingredient_value['amount']) >= min_amount:
-                ingredient_id = ingredient_value['id']
-                ingredient = get_object_or_404(Ingredient, id=ingredient_id)
-                ingredients_amount = IngredientsAmount.objects.get_or_create(
-                    ingredient=ingredient,
-                    amount=ingredient_value['amount'],
-                )
-                validated_ingredients.append(ingredients_amount[0].id)
-            else:
+            if int(ingredient_value['amount']) < min_amount:
                 raise serializers.ValidationError(
                     'Количество ингредиентов должно быть больше 0'
                 )
+            ingredient_id = ingredient_value['id']
+            ingredient = get_object_or_404(Ingredient, id=ingredient_id)
+            ingredients_amount = IngredientsAmount.objects.get_or_create(
+                ingredient=ingredient,
+                amount=ingredient_value['amount'],
+            )
+            validated_ingredients.append(ingredients_amount[0].id)
         return validated_ingredients
 
     def to_representation(self, instance):
