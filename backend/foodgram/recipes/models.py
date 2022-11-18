@@ -37,7 +37,6 @@ class IngredientsAmount(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='Кол-во',
         validators=(MinValueValidator(settings.MIN_INGREDIENTS_AMOUNT),),
-        unique=True,
     )
 
     def __str__(self):
