@@ -91,11 +91,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                   'author', 'image')
 
     def validate_ingredients(self, value):
-        ingredients_id = [ingredient['id'] for ingredient in value]
-        if len(ingredients_id) != len(set(ingredients_id)):
-            raise serializers.ValidationError(
-                'Ингредиенты не должны дублироваться'
-            )
         validated_ingredients = []
         for ingredient_value in value:
             min_amount = settings.MIN_INGREDIENTS_AMOUNT
