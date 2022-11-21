@@ -92,6 +92,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, value):
         ingredients_id = [ingredient['id'] for ingredient in value]
+        print(len(ingredients_id), len(set(ingredients_id)), ingredients_id)
         if len(ingredients_id) != len(set(ingredients_id)):
             raise serializers.ValidationError(
                 'Ингредиенты не должны дублироваться'
