@@ -10,6 +10,7 @@ services:
     image: inozem/foodgram_backend
     restart: always
     volumes:
+      - colorfield:/app/static/colorfield/
       - static_value:/app/static/
       - media_value:/app/media/
     depends_on:
@@ -38,3 +39,4 @@ volumes:
   postgres_data:
   static_value:
   media_value:
+  colorfield:
