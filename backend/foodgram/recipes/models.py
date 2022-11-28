@@ -17,13 +17,13 @@ class Ingredient(models.Model):
         verbose_name='Единица измерения',
     )
 
-    def __str__(self):
-        return f'{self.name} ({self.measurement_unit})'
-
     class Meta:
         unique_together = ('name', 'measurement_unit')
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return f'{self.name} ({self.measurement_unit})'
 
 
 class IngredientsAmount(models.Model):
@@ -39,13 +39,13 @@ class IngredientsAmount(models.Model):
         validators=(MinValueValidator(settings.MIN_INGREDIENTS_AMOUNT),),
     )
 
-    def __str__(self):
-        return f'{self.ingredient} - {self.amount}'
-
     class Meta:
         unique_together = ('ingredient', 'amount')
         verbose_name = 'Кол-во ингредиентов'
         verbose_name_plural = 'Кол-во ингредиентов'
+
+    def __str__(self):
+        return f'{self.ingredient} - {self.amount}'
 
 
 class Tag(models.Model):
@@ -58,12 +58,12 @@ class Tag(models.Model):
     color = ColorField(default='#FF0000', unique=True)
     slug = models.SlugField(max_length=150, verbose_name='Ссылка', unique=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
+
+    def __str__(self):
+        return self.name
 
 
 class Recipe(models.Model):
@@ -99,13 +99,13 @@ class Recipe(models.Model):
         auto_now_add=True
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ('-created',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+
+    def __str__(self):
+        return self.name
 
 
 class Favorite(models.Model):

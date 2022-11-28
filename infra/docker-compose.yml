@@ -7,7 +7,7 @@ services:
     env_file:
       - ./.env
   backend:
-    image: inozem/foodgram_backend
+    image: inozem/foodgram_backend:latest 
     restart: always
     volumes:
       - static_value:/app/static/
@@ -17,7 +17,7 @@ services:
     env_file:
       - ./.env
   frontend:
-    image: inozem/foodgram_frontend
+    image: inozem/foodgram_frontend:latest 
     volumes:
       - ../frontend/:/app/result_build/
   nginx:
