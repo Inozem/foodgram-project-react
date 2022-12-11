@@ -6,7 +6,6 @@
 - Django 3.2.15
 - Docker 20.10.17
 - Docker-compose 2.10.2
-- Gunicorn 20.0.4
 - Nginx 1.19.3
 - PostgreSQL 13.0
 
